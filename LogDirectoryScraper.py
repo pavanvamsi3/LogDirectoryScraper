@@ -2,7 +2,7 @@ import os
 import gzip
 import csv
 import MySQLdb
-
+"""Made a change"""
 """Creating a log file of this script for logging the results"""
 global logger
 logger = "current.log"
