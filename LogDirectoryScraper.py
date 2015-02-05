@@ -101,19 +101,34 @@ class Database:
 			log_writefile.close()
 
 		try:
+			"""Creating a filelog.log file, for the first time""" 
+			file_log = open(filelogger, 'a')
+			file_log.close()
+
 			for filename in os.listdir(logfolder):
-					if filename[-3:] == "csv":
-						cursor = mydb.cursor()
-						csv_data = csv.reader(file(filename))
-						for row in csv_data:
-							cursor.execute('''insert ignore into logtable(date_time,url,ip,browserid,device)values(%s,%s,%s,%s,%s)''', row[0:5])
-						mydb.commit()
-						cursor.close()
-					else:
-						pass
+				read_filelog = open(filelogger, "rb")
+				lines = read_filelog.readlines()
+				read_filelog.close()
+				logfilename = filename + "\n"
+
+				#Checking whether the current file is already processed or not
+
+				if filename[-3:] == "csv" and logfilename not in lines:
+					#Dealing with the DB
+					cursor = mydb.cursor()
+					csv_data = csv.reader(file(filename))
+					for row in csv_data:
+						cursor.execute('''insert ignore into logtable(date_time,url,ip,browserid,device)values(%s,%s,%s,%s,%s)''', row[0:5])
+					mydb.commit()
+					cursor.close()
+					#Done Inserting
+					
+					#Logging the file names after processing 
 					file_log = open(filelogger, 'a')
-					file_log.write("\n%s\n" % filename)
+					file_log.write("%s\n" % filename)
 					file_log.close()
+				else:
+					pass
 		except Exception, e:
 			raise e
 			log_writefile = open(logger, 'a')
