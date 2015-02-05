@@ -2,6 +2,7 @@ import os
 import gzip
 import csv
 import MySQLdb
+import datetime
 
 """Creating a log file of this script for logging the results"""
 global logger
@@ -87,7 +88,7 @@ class Database:
 		log_writefile.write("\nDatabase details:\nUser: %s\nDatabase: %s\n" % (self.user, self.db))
 		log_writefile.close()
 
-	def connectDB(self, logfolder):
+	def connectDB(self, logfolder, machine):
 		try:
 			mydb = MySQLdb.connect(self.host, self.user, self.password, self.db)
 			log_writefile = open(logger, 'a')
@@ -104,7 +105,6 @@ class Database:
 			"""Creating a filelog.log file, for the first time""" 
 			file_log = open(filelogger, 'a')
 			file_log.close()
-			count_num = 0 
 			for filename in os.listdir(logfolder):
 				read_filelog = open(filelogger, "rb")
 				lines = read_filelog.readlines()
@@ -115,7 +115,6 @@ class Database:
 
 				if filename[-3:] == "csv" and logfilename not in lines:
 					#Dealing with the DB
-					count_num = 0
 					cursor = mydb.cursor()
 					csv_data = csv.reader(file(filename)) 
 					for row in csv_data:
@@ -128,7 +127,6 @@ class Database:
 							flag = 1
 						if(flag != 1):
 							cursor.execute('''insert ignore into logtable(date_time,url,ip,browserid,device)values(%s,%s,%s,%s,%s)''', row[0:5])
-							count_num+=1 
 					mydb.commit()
 					cursor.close()
 					#Done Inserting
@@ -137,10 +135,13 @@ class Database:
 					file_log = open(filelogger, 'a')
 					file_log.write("%s\n" % filename)
 					file_log.close()
+					cursor = mydb.cursor()
+					cursor.execute('''insert ignore into machine_log(machine_id, file_name, date_time)values('%s','%s','%s')''' % (machine,filename,datetime.datetime.now()))
+					mydb.commit()
+					cursor.close()
 				else:
 					pass
 		except Exception, e:
-			print count_num
 			raise e
 			log_writefile = open(logger, 'a')
 			log_writefile.write("\nError inserting into the database\n")
@@ -164,7 +165,7 @@ if __name__ == "__main__":
 		fileobj.total_files()
 
 		database = Database("root", "passwd", "localhost", "log")
-		database.connectDB(logfolder)
+		database.connectDB(logfolder, machine)
 		print "Processed Machine %d" % machine
 
 	print "Mission Accomplished"
