@@ -104,7 +104,7 @@ class Database:
 			"""Creating a filelog.log file, for the first time""" 
 			file_log = open(filelogger, 'a')
 			file_log.close()
-
+			count_num = 0 
 			for filename in os.listdir(logfolder):
 				read_filelog = open(filelogger, "rb")
 				lines = read_filelog.readlines()
@@ -115,10 +115,20 @@ class Database:
 
 				if filename[-3:] == "csv" and logfilename not in lines:
 					#Dealing with the DB
+					count_num = 0
 					cursor = mydb.cursor()
-					csv_data = csv.reader(file(filename))
+					csv_data = csv.reader(file(filename)) 
 					for row in csv_data:
-						cursor.execute('''insert ignore into logtable(date_time,url,ip,browserid,device)values(%s,%s,%s,%s,%s)''', row[0:5])
+						string_date = row[0]
+						flag = 0 
+						try:
+							#Checking whether the first row in the csv is datetime or not
+							datetime.strptime(string_date, "%Y-%m-%d %H:%M:%S")
+						except Exception, e:
+							flag = 1
+						if(flag != 1):
+							cursor.execute('''insert ignore into logtable(date_time,url,ip,browserid,device)values(%s,%s,%s,%s,%s)''', row[0:5])
+							count_num+=1 
 					mydb.commit()
 					cursor.close()
 					#Done Inserting
@@ -130,6 +140,7 @@ class Database:
 				else:
 					pass
 		except Exception, e:
+			print count_num
 			raise e
 			log_writefile = open(logger, 'a')
 			log_writefile.write("\nError inserting into the database\n")
@@ -138,16 +149,22 @@ class Database:
 if __name__ == "__main__":
 
 	"""Log folder"""
-	logfolder = "/home/sh/logbackup/71"
+	master_folder = "/home/sh/logbackup/"
+	no_of_machines = 3
+	machines = [71, 39, 150]
 	
 	"""Checking the given directory and then unzipping the required files"""
-	fileobj = FileConvertor(logfolder)
-	if fileobj.directory_check():
-		os.chdir(logfolder)
-	fileobj.total_files()
-	fileobj.convert()
-	fileobj.total_files()
+	for machine in machines:
+		logfolder = master_folder + str(machine)
+		fileobj = FileConvertor(logfolder)
+		if fileobj.directory_check():
+			os.chdir(logfolder)
+		fileobj.total_files()
+		fileobj.convert()
+		fileobj.total_files()
 
-	database = Database("root", "passwd", "localhost", "log")
-	database.connectDB(logfolder)
+		database = Database("root", "passwd", "localhost", "log")
+		database.connectDB(logfolder)
+		print "Processed Machine %d" % machine
+
 	print "Mission Accomplished"
