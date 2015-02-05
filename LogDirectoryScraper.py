@@ -122,7 +122,7 @@ class Database:
 						flag = 0 
 						try:
 							#Checking whether the first row in the csv is datetime or not
-							datetime.strptime(string_date, "%Y-%m-%d %H:%M:%S")
+							datetime.datetime.strptime(string_date, "%Y-%m-%d %H:%M:%S")
 						except Exception, e:
 							flag = 1
 						if(flag != 1):
@@ -135,10 +135,10 @@ class Database:
 					file_log = open(filelogger, 'a')
 					file_log.write("%s\n" % filename)
 					file_log.close()
-					cursor = mydb.cursor()
-					cursor.execute('''insert ignore into machine_log(machine_id, file_name, date_time)values('%s','%s','%s')''' % (machine,filename,datetime.datetime.now()))
+					cursor_new = mydb.cursor()
+					cursor_new.execute('''insert ignore into machine_log(machine_id, file_name, date_time)values('%s','%s','%s')''' % (machine,filename,datetime.datetime.now()))
 					mydb.commit()
-					cursor.close()
+					cursor_new.close()
 				else:
 					pass
 		except Exception, e:
