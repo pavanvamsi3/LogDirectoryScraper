@@ -2,10 +2,17 @@ import os
 import gzip
 import csv
 import MySQLdb
-"""Made a change"""
+
 """Creating a log file of this script for logging the results"""
 global logger
+
+"""Creating a log of files which are processed"""
+global filelogger
+
+"""Names of the log files"""
+
 logger = "current.log"
+filelogger = "filelog.log"
 
 class FileConvertor:
 	"""This Class checks the given directory's validity and then converts the zipped log files into csv data"""
@@ -104,6 +111,9 @@ class Database:
 						cursor.close()
 					else:
 						pass
+					file_log = open(filelogger, 'a')
+					file_log.write("\n%s\n" % filename)
+					file_log.close()
 		except Exception, e:
 			raise e
 			log_writefile = open(logger, 'a')
@@ -113,7 +123,7 @@ class Database:
 if __name__ == "__main__":
 
 	"""Log folder"""
-	logfolder = "/home/sh/log"
+	logfolder = "/home/sh/logbackup/71"
 	
 	"""Checking the given directory and then unzipping the required files"""
 	fileobj = FileConvertor(logfolder)
