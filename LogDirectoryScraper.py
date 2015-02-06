@@ -106,14 +106,15 @@ class Database:
 			file_log = open(filelogger, 'a')
 			file_log.close()
 			for filename in os.listdir(logfolder):
-				read_filelog = open(filelogger, "rb")
-				lines = read_filelog.readlines()
-				read_filelog.close()
-				logfilename = filename + "\n"
-
+				#read_filelog = open(filelogger, "rb")
+				#lines = read_filelog.readlines()
+				#read_filelog.close()
+				logfilename = filename
 				#Checking whether the current file is already processed or not
-
-				if filename[-3:] == "csv" and logfilename not in lines:
+				cursor_machine = mydb.cursor()
+				cursor_machine.execute('''select count(*) from machine_log where file_name=%s and machine_id=%s''', (filename, machine))
+				file_count = cursor_machine.fetchall()
+				if filename[-3:] == "csv" and file_count[0][0] == 0:
 					#Dealing with the DB
 					cursor = mydb.cursor()
 					csv_data = csv.reader(file(filename)) 
