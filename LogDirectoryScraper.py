@@ -25,7 +25,7 @@ class FileConvertor:
 		self.logfolder = logfolder
 
 	def directory_check(self):
-		
+		"""Checking whether the input is a directory or not"""
 		if not os.path.isdir(self.logfolder):
 			print "Error: Directory Needed"
 			return False
@@ -33,8 +33,7 @@ class FileConvertor:
 			return True
 
 	def convert(self):
-
-		
+		"""Extracting the file and converting it into csv"""
 		log_writefile = open(logger, 'a')
 
 		for f in os.listdir(self.logfolder):
@@ -61,7 +60,7 @@ class FileConvertor:
 		log_writefile.close()	
 			
 	def total_files(self):
-			
+			"""Keeps the track of the total_files""" 
 			log_writefile = open(logger, 'a')
 
 			FileConvertor.uncompressed_files = 0
@@ -78,8 +77,9 @@ class FileConvertor:
 			log_writefile.close()
 
 class Database:
-
+    """Deals with the data base connection, retrieval, insertion etc."""  
 	def __init__(self, user, password, host, db):
+		"""Constructor"""
 		self.user = user
 		self.password = password
 		self.host = host
@@ -88,7 +88,8 @@ class Database:
 		log_writefile.write("\nDatabase details:\nUser: %s\nDatabase: %s\n" % (self.user, self.db))
 		log_writefile.close()
 
-	def connectDB(self, logfolder, machine):
+	def connect_and_insert(self, logfolder, machine):
+		"""Connects and then inserts the data into the DB"""
 		try:
 			mydb = MySQLdb.connect(self.host, self.user, self.password, self.db)
 			log_writefile = open(logger, 'a')
@@ -166,7 +167,7 @@ if __name__ == "__main__":
 		fileobj.total_files()
 
 		database = Database("root", "passwd", "localhost", "log")
-		database.connectDB(logfolder, machine)
+		database.connect_and_insert(logfolder, machine)
 		print "Processed Machine %d" % machine
 
 	print "Mission Accomplished"
