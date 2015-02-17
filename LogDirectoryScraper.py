@@ -17,7 +17,6 @@ filelogger = "filelog.log"
 
 class FileConvertor:
 	"""This Class checks the given directory's validity and then converts the zipped log files into csv data"""
-
 	compressed_files = 0
 	uncompressed_files = 0
 
@@ -78,7 +77,7 @@ class FileConvertor:
 
 class Database:
     """Deals with the data base connection, retrieval, insertion etc."""  
-	def __init__(self, user, password, host, db):
+    def __init__(self, user, password, host, db):
 		"""Constructor"""
 		self.user = user
 		self.password = password
@@ -87,8 +86,8 @@ class Database:
 		log_writefile = open(logger,'a')
 		log_writefile.write("\nDatabase details:\nUser: %s\nDatabase: %s\n" % (self.user, self.db))
 		log_writefile.close()
-
-	def connect_and_insert(self, logfolder, machine):
+    
+    def connect_and_insert(self, logfolder, machine):
 		"""Connects and then inserts the data into the DB"""
 		try:
 			mydb = MySQLdb.connect(self.host, self.user, self.password, self.db)
